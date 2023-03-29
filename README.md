@@ -38,7 +38,7 @@ Here is an example YAML Fragment in the steps section of a build:
         solsta_client_secret:  ${{ secrets.SNXD_CLIENT_SECRET }}
         create_type: product 
         target_product: My Product Name
-        description**  Friendly description of My Product
+        description:  Friendly description of My Product
 ```
 
 ## License
