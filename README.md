@@ -30,7 +30,7 @@ Here is an example YAML Fragment in the steps section of a build:
 ```yaml
     steps:
     - name: Create Object Configuration
-      uses: snxd/deploy-github-launchfiles-action@v2
+      uses: snxd/deploy-github-create-action@v2
       with:
         console_version: '6.1.2.84'
         scripts_version: '3.7.31'
