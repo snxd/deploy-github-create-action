@@ -1,0 +1,111 @@
+name: Solsta Create Action
+description: Create/Modify Products, Environments, Products
+inputs:
+  solsta_client_id:
+    description: Client ID to authenticate usage of Solid State Networks console tools
+    required: true
+    default: ""
+  solsta_client_secret:
+    description: Secret Key to authenticate usage of Solid State Networks console tools
+    required: true
+    default: ""
+  console_version:
+    description: Version of Solsta Console Tools to use
+    required: true
+    default: "6.1.2.84"
+  scripts_version:
+    description: Version of Solsta Deploy Scripts to use
+    required: true
+    default: "3.7.31"
+  create_type:
+    description: Either product, repository, or environment to create/modify 
+    default: 'product'
+    required: true
+  target_product:
+    description: Target product to create/modify (case-sensitive)
+    required: true
+  target_environment:
+    description: Target environment create/modify to(case-sensitive)
+    required: false
+  target_repository:
+    description: Target repository create/modify to (case-sensitive)
+    required: false
+  description:
+    description: Friendly description of the modified object
+    required: false
+  alias_location:
+    description: Environment alias location URI
+    required: false
+  catalog_location:
+    description: Environment catalog location URI
+    required: false
+  metafile_location:
+    description: Environment metafile location URI
+    required: false
+  publish_location:
+    description: Environment publish location URI
+    required: false
+  source_location:
+    description: Environment source location URI
+    required: false
+  storage_type:
+    description: Environment storage type options are piece, pieceshared, or file
+    required: false
+    default: pieceshared
+  update_path_count:
+    description: Environment update path count number
+    required: false
+
+outputs:
+  result:
+    description: The state of the action, if processes completed successfully
+
+runs:
+  using: 'composite'
+  steps:
+  - name: Solsta setup
+    uses: snxd/deploy-github-setup-action@v2
+    with:
+      solsta_client_id: ${{ inputs.solsta_client_id }}
+      solsta_client_secret: ${{ inputs.solsta_client_secret }}
+      console_version: ${{ inputs.console_version }}
+      scripts_version: ${{ inputs.scripts_version }}
+
+  - name: Create Objects
+    shell: bash
+    working-directory: solsta_work
+    run: |
+          # Build the create object arguments
+          SOLSTA_EXTRA=""
+          type_var="$(tr [A-Z] [a-z] <<< "${{ inputs.create_type }}")"
+          if [ "$type_var" = "product" ]; then
+            SOLSTA_EXTRA="$SOLSTA_EXTRA --object=product"
+            SOLSTA_EXTRA="$SOLSTA_EXTRA --product_name=${{ inputs.target_product }}"
+            SOLSTA_EXTRA="$SOLSTA_EXTRA --description=${{ inputs.description }}"
+          fi
+          if [ "$type_var" = "environment" ] || [ "$type_var" = "environment" ]; then
+            SOLSTA_EXTRA="$SOLSTA_EXTRA --object=env"
+            SOLSTA_EXTRA="$SOLSTA_EXTRA --product_name=${{ inputs.target_product }}"
+            SOLSTA_EXTRA="$SOLSTA_EXTRA --env_name=${{ inputs.target_environment }}"
+            SOLSTA_EXTRA="$SOLSTA_EXTRA --description=${{ inputs.description }}"
+            SOLSTA_EXTRA="$SOLSTA_EXTRA --alias_location=${{ inputs.alias_location }}"
+            SOLSTA_EXTRA="$SOLSTA_EXTRA --catalog_location=${{ inputs.catalog_location }}"
+            SOLSTA_EXTRA="$SOLSTA_EXTRA --metafile_location=${{ inputs.metafile_location }}"
+            SOLSTA_EXTRA="$SOLSTA_EXTRA --publish_location=${{ inputs.publish_location }}"
+            SOLSTA_EXTRA="$SOLSTA_EXTRA --source_location=${{ inputs.source_location }}"
+            SOLSTA_EXTRA="$SOLSTA_EXTRA --storage_type=${{ inputs.storage_type }}"
+            SOLSTA_EXTRA="$SOLSTA_EXTRA --update_path_count=${{ inputs.update_path_count }}"
+          fi
+          if [ "$type_var" = "repo" ] || [ "$type_var" = "repository" ]; then
+            SOLSTA_EXTRA="$SOLSTA_EXTRA --object=repository"
+            SOLSTA_EXTRA="$SOLSTA_EXTRA --product_name=${{ inputs.target_product }}"
+            SOLSTA_EXTRA="$SOLSTA_EXTRA --env_name=${{ inputs.target_environment }}"
+            SOLSTA_EXTRA="$SOLSTA_EXTRA --repository_name=${{ inputs.target_repository }}"
+            SOLSTA_EXTRA="$SOLSTA_EXTRA --description=${{ inputs.description }}"
+          fi
+          # Run the script that creates the objects
+          eval "python manifest.py --debug_network --console_credentials=client_credentials.json --console_directory=solsta_console/${{ inputs.console_version }}/console/ --task=post $SOLSTA_EXTRA"
+
+branding:
+  icon: "download-cloud"
+  color: "yellow"
