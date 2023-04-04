@@ -15,12 +15,8 @@ The action is compatible with Windows, Linux, and OSX runners.  Windows self-hos
 * **target_environment:**  Target environment create/modify to(case-sensitive)
 * **target_repository:**  Target repository create/modify to (case-sensitive)
 * **description**  Friendly description of the modified object
-* **alias_location:**  Environment alias location URI
-* **catalog_location:**  Environment catalog location URI
-* **metafile_location:**  Environment metafile location URI
 * **publish_location:**  Environment publish location URI
 * **source_location:**  Environment source location URI
-* **storage_type:**  Environment storage type options are piece, pieceshared, or file
 * **update_path_count:**  Environment update path count number
 
 ## Using
