@@ -10,10 +10,11 @@ The action is compatible with Windows, Linux, and OSX runners.  Windows self-hos
 * **solsta_client_secret:** Secret Key to authenticate usage of Solid State Networks console tools
 * **console_version:** Version of Solsta Console Tools to use
 * **scripts_version:** Version of Solsta Deploy Scripts to use
-* **create_type:**  Either product, repository, or environment to create/modify 
-* **target_product:**  Target product to create/modify (case-sensitive)
-* **target_environment:**  Target environment create/modify to(case-sensitive)
-* **target_repository:**  Target repository create/modify to (case-sensitive)
+* **action_type:**  Either create, or update
+* **object_type:**  Either product, repository, or environment to create/update 
+* **target_product:**  Target product to create/update (case-sensitive)
+* **target_environment:**  Target environment create/update to(case-sensitive)
+* **target_repository:**  Target repository create/update to (case-sensitive)
 * **description**  Friendly description of the modified object
 * **publish_location:**  Environment publish location URI
 * **source_location:**  Environment source location URI
@@ -32,7 +33,8 @@ Here is an example YAML Fragment in the steps section of a build:
         scripts_version: '3.7.31'
         solsta_client_id:  ${{ secrets.SNXD_CLIENT_ID }}
         solsta_client_secret:  ${{ secrets.SNXD_CLIENT_SECRET }}
-        create_type: product 
+        action_type: create
+        object_type: product 
         target_product: My Product Name
         description:  Friendly description of My Product
 ```

@@ -17,18 +17,22 @@ inputs:
     description: Version of Solsta Deploy Scripts to use
     required: true
     default: "3.7.31"
-  create_type:
-    description: Either product, repository, or environment to create/modify 
+  action_type:
+    description: Either create, or update 
+    default: 'create'
+    required: true
+  object_type:
+    description: Either product, repository, or environment to create/update 
     default: 'product'
     required: true
   target_product:
-    description: Target product to create/modify (case-sensitive)
+    description: Target product to create/update (case-sensitive)
     required: true
   target_environment:
-    description: Target environment create/modify to(case-sensitive)
+    description: Target environment create/update to(case-sensitive)
     required: false
   target_repository:
-    description: Target repository create/modify to (case-sensitive)
+    description: Target repository create/update to (case-sensitive)
     required: false
   description:
     description: Friendly description of the modified object
@@ -64,30 +68,42 @@ runs:
     run: |
           # Build the create object arguments
           SOLSTA_EXTRA=""
-          type_var="$(tr [A-Z] [a-z] <<< "${{ inputs.create_type }}")"
+          type_var="$(tr [A-Z] [a-z] <<< "${{ inputs.object_type }}")"
           if [ "$type_var" = "product" ]; then
             SOLSTA_EXTRA+="--object=product "
             SOLSTA_EXTRA+="--product_name=\"${{ inputs.target_product }}\" "
-            SOLSTA_EXTRA+="--description=\"${{ inputs.description }}\" "
+            if [ ! "${{ inputs.description }}" = "" ]; then
+              SOLSTA_EXTRA+="--description=\"${{ inputs.description }}\" " 
+            fi
           fi
           if [ "$type_var" = "environment" ] || [ "$type_var" = "environment" ]; then
             SOLSTA_EXTRA+="--object=env "
             SOLSTA_EXTRA+="--product_name=\"${{ inputs.target_product }}\" "
             SOLSTA_EXTRA+="--env_name=\"${{ inputs.target_environment }}\" "
-            SOLSTA_EXTRA+="--description=\"${{ inputs.description }}\" "
-            SOLSTA_EXTRA+="--publish_location=\"${{ inputs.publish_location }}\" "
-            SOLSTA_EXTRA+="--source_location=\"${{ inputs.source_location }}\" "
-            SOLSTA_EXTRA+="--update_path_count=\"${{ inputs.update_path_count }}\" "
+            if [ ! "${{ inputs.description }}" = "" ]; then
+              SOLSTA_EXTRA+="--description=\"${{ inputs.description }}\" " 
+            fi
+            if [ ! "${{ inputs.publish_location }}" = "" ]; then
+              SOLSTA_EXTRA+="--publish_location=\"${{ inputs.publish_location }}\" "
+            fi
+            if [ ! "${{ inputs.source_location }}" = "" ]; then
+              SOLSTA_EXTRA+="--source_location=\"${{ inputs.source_location }}\" "
+            fi
+            if [ ! "${{ inputs.update_path_count }}" = "" ]; then
+              SOLSTA_EXTRA+="--update_path_count=\"${{ inputs.update_path_count }}\" "
+            fi
           fi
           if [ "$type_var" = "repo" ] || [ "$type_var" = "repository" ]; then
             SOLSTA_EXTRA+="--object=repository "
             SOLSTA_EXTRA+="--product_name=\"${{ inputs.target_product }}\" "
             SOLSTA_EXTRA+="--env_name=\"${{ inputs.target_environment }}\" "
             SOLSTA_EXTRA+="--repository_name=\"${{ inputs.target_repository }}\" "
-            SOLSTA_EXTRA+="--description=\"${{ inputs.description }}\" "
+            if [ ! "${{ inputs.description }}" = "" ]; then
+              SOLSTA_EXTRA+="--description=\"${{ inputs.description }}\" " 
+            fi
           fi
           # Run the script that creates the objects
-          eval "python manifest.py --debug_network --console_credentials=client_credentials.json --console_directory=solsta_console/${{ inputs.console_version }}/console/ --task=post $SOLSTA_EXTRA"
+          eval "python manifest.py --debug_network --console_credentials=client_credentials.json --console_directory=solsta_console/${{ inputs.console_version }}/console/ --task=${{ inputs.action_type }} $SOLSTA_EXTRA"
 
 branding:
   icon: "download-cloud"
