@@ -31,8 +31,8 @@ Here is an example YAML Fragment in the steps section of a build:
       with:
         console_version: '6.1.2.84'
         scripts_version: '3.7.31'
-        solsta_client_id:  ${{ secrets.SNXD_CLIENT_ID }}
-        solsta_client_secret:  ${{ secrets.SNXD_CLIENT_SECRET }}
+        solsta_client_id:  ${{ secrets.SOLSTA_CLIENT_ID }}
+        solsta_client_secret:  ${{ secrets.SOLSTA_CLIENT_SECRET }}
         action_type: create
         object_type: product 
         target_product: My Product Name
