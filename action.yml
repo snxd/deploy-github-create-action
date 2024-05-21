@@ -18,21 +18,24 @@ inputs:
     required: true
     default: "3.7.31"
   action_type:
-    description: Either create, or update 
+    description: Either create, update, or delete 
     default: 'create'
     required: true
   object_type:
-    description: Either product, repository, or environment to create/update 
+    description: Either product, repository, environment, or release 
     default: 'product'
     required: true
   target_product:
-    description: Target product to create/update (case-sensitive)
+    description: Target product to create/update/delete (case-sensitive)
     required: true
   target_environment:
-    description: Target environment create/update to(case-sensitive)
+    description: Target environment to create/update/delete (case-sensitive)
     required: false
   target_repository:
-    description: Target repository create/update to (case-sensitive)
+    description: Target repository to create/update/delete (case-sensitive)
+    required: false
+  target_release:
+    description: Target release to create/update/delete (case-sensitive)
     required: false
   description:
     description: Friendly description of the modified object
@@ -46,6 +49,12 @@ inputs:
   update_path_count:
     description: Environment update path count number
     required: false
+  notes_location:
+    description: Release release notes location URL
+    required: false
+  optional:
+    description: Whether the target repository is optional (true/false)
+    required: false
 
 outputs:
   result:
@@ -55,7 +64,7 @@ runs:
   using: 'composite'
   steps:
   - name: Solsta setup
-    uses: snxd/deploy-github-setup-action@v3
+    uses: snxd/deploy-github-setup-action@v4
     with:
       solsta_client_id: ${{ inputs.solsta_client_id }}
       solsta_client_secret: ${{ inputs.solsta_client_secret }}
@@ -100,6 +109,19 @@ runs:
             SOLSTA_EXTRA+="--repository_name=\"${{ inputs.target_repository }}\" "
             if [ ! "${{ inputs.description }}" = "" ]; then
               SOLSTA_EXTRA+="--description=\"${{ inputs.description }}\" " 
+            fi
+            if [ ! "${{ inputs.optional }}" = "" ]; then
+              SOLSTA_EXTRA+="--optional=\"${{ inputs.optional }}\" " 
+            fi
+          fi
+          if [ "$type_var" = "rel" ] || [ "$type_var" = "release" ]; then
+            SOLSTA_EXTRA+="--object=release "
+            SOLSTA_EXTRA+="--product_name=\"${{ inputs.target_product }}\" "
+            SOLSTA_EXTRA+="--env_name=\"${{ inputs.target_environment }}\" "
+            SOLSTA_EXTRA+="--repository_name=\"${{ inputs.target_repository }}\" "
+            SOLSTA_EXTRA+="--release_id=\"${{ inputs.target_release }}\" "
+            if [ ! "${{ inputs.notes_location }}" = "" ]; then
+              SOLSTA_EXTRA+="--notes_location=\"${{ inputs.notes_location }}\" " 
             fi
           fi
           # Run the script that creates the objects
